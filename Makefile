@@ -4,28 +4,41 @@
 # |  \/  | __ _| | _____ / _(_) | ___ 
 # | |\/| |/ _` | |/ / _ \ |_| | |/ _ \
 # | |  | | (_| |   <  __/  _| | |  __/
-# |_|  |_|\__,_|_|\_\___|_| |_|_|\___|
+# |_|  |_|\__,_|_|\_\___|_| |_|_|\___| for Traditional JP Colors
 # ---------------------------------------------------------------------------
 #
+VERSION = 1.0.12
 SOURCE = http://www.colordic.org/w/
 BASE = traditional-jp-colors
 TEMPDIR = temp
-FILES = $(BASE).yaml $(BASE).json $(BASE).vim $(BASE).plist \
-	$(BASE).plist.diff Colors.plist rgb.txt $(BASE)-rgb.txt $(BASE).dtx
+BANNER = include/banner
+FILES = $(BASE).tsv $(BASE).yaml $(BASE).dtx $(BASE).vim $(BASE).plist \
+	$(BASE).plist.diff Colors.plist rgb.txt $(BASE)-rgb.txt $(BASE).json \
+	$(BASE).less $(BASE).html
 
-all: yaml json vim macvim rgb
-data: temp
-	@if [ ! -s "data" ]; then \
+.PHONY: clean
+all: $(FILES)
+table: $(BASE).tsv
+dtx: $(BASE).dtx
+rgb: $(BASE)-rgb.txt rgb.txt
+yaml: $(BASE).yaml
+json: $(BASE).json
+macvim: $(BASE).plist Colors.plist $(BASE).plist.diff
+vim: $(BASE).vim
+less: $(BASE).less
+html: $(BASE).html
+
+data:
+	@test -s "data" || ( \
 		rm -f index.html ;\
 		wget '$(SOURCE)' ;\
 		mv index.html data ;\
-	fi
+	)
 
-$(BASE).tsv: temp data
+$(BASE).tsv: data
 	test -s data && perl MAKEMAP.PL > $@
 
-rgb: $(BASE)-rgb.txt rgb.txt
-$(BASE)-rgb.txt: temp $(BASE).tsv
+$(BASE)-rgb.txt: $(BASE).tsv
 	touch $@
 	printf "%3d %3d %3d\t\t%s\n" `awk '{ print $$6,$$7,$$8,$$3}' $(BASE).tsv` >> $@
 
@@ -37,8 +50,7 @@ rgb.txt:
 		cat include/rgb.txt >> $@ ;\
 	fi
 
-dtx: $(BASE).dtx
-$(BASE).dtx: temp $(BASE).tsv
+$(BASE).dtx: $(BASE).tsv
 	touch $@
 	cat include/$(BASE).ins > $(BASE).ins
 	cat include/head.dtx >> $@
@@ -47,8 +59,8 @@ $(BASE).dtx: temp $(BASE).tsv
 	done
 	cat include/foot.dtx >> $@
 
-yaml: $(BASE).yaml
-$(BASE).yaml: temp $(BASE).tsv
+$(BASE).yaml: $(BASE).tsv
+	make temp
 	cp /dev/null $(TEMPDIR)/name.tmp
 	cp /dev/null $(TEMPDIR)/kana.tmp
 	cp /dev/null $(TEMPDIR)/roman.tmp
@@ -60,18 +72,20 @@ $(BASE).yaml: temp $(BASE).tsv
 		echo $$L | awk -F- '{ print "|color|: { |hex|: |"$$4"|, |dec|: "$$5", |r|: "$$6", |g|: "$$7", |b|: "$$8" } "}' \
 			>> $(TEMPDIR)/color.tmp ;\
 	done
+	touch $@
+	cat $(BANNER) | sed 's/^/#/g' >> $@
 	paste -d' ' $(TEMPDIR)/name.tmp $(TEMPDIR)/kana.tmp $(TEMPDIR)/roman.tmp $(TEMPDIR)/color.tmp | \
-		tr '|' '"' | sed -e 's|^|- { |g' -e 's|$$|}|g' > $@
+		tr '|' '"' | sed -e 's|^|- { |g' -e 's|$$|}|g' >> $@
 
-json: $(BASE).json
 $(BASE).json: $(BASE).yaml
+	make temp
 	cp /dev/null $(TEMPDIR)/$@.tmp
 	printf '[ ' >> $(TEMPDIR)/$@.tmp
 	cat $(BASE).yaml | sed -e 's|^- ||g' -e 's|$$|,|g' >> $(TEMPDIR)/$@.tmp
 	cat $(TEMPDIR)/$@.tmp | sed '$$s/},/} ]/' > $@
 
-macvim: $(BASE).plist Colors.plist $(BASE).plist.diff
-$(BASE).plist: temp $(BASE).tsv
+$(BASE).plist: $(BASE).tsv
+	make temp
 	touch $@
 	cat include/Colors-head.plist >> $@
 	touch $(TEMPDIR)/$@.tmp
@@ -82,7 +96,8 @@ $(BASE).plist: temp $(BASE).tsv
 	cat $(TEMPDIR)/$@.tmp >> $@
 	cat include/Colors-foot.plist >> $@
 
-Colors.plist: temp $(BASE).plist
+Colors.plist: $(BASE).plist
+	make temp
 	touch $@
 	cat include/Colors-head.plist >> $@
 	cat include/Colors-body.plist >> $@
@@ -102,15 +117,28 @@ $(BASE).plist.diff: Colors.plist
 		-e 's|--- include/MacVim-Colors.plist|--- /Applications/MacVim.app/Contents/Resources/Colors.plist|' \
 		-e 's|+++ |+++ /Applications/MacVim.app/Contents/Resources/|' >> $@ || true
 
-vim: $(BASE).vim
-$(BASE).vim: temp $(BASE).tsv
+$(BASE).vim: $(BASE).tsv
+	make temp
+	touch $@
 	cp /dev/null $(TEMPDIR)/let.tmp
 	cp /dev/null $(TEMPDIR)/comment.tmp
 	for L in `cat $(BASE).tsv | tr '\t' '-'`; do \
 		echo $$L | awk -F- '{ print "let b:"$$3" = |"$$4"|" }' | tr '|' "'" >> $(TEMPDIR)/let.tmp ;\
 		echo $$L | awk -F- '{ print "|"$$1"("$$2") "$$6","$$7","$$8 }' | tr '|' '"' >> $(TEMPDIR)/comment.tmp ;\
 	done
-	paste $(TEMPDIR)/let.tmp $(TEMPDIR)/comment.tmp > $@
+	cat $(BANNER) | sed 's/^/"/g' >> $@
+	paste $(TEMPDIR)/let.tmp $(TEMPDIR)/comment.tmp >> $@
+
+$(BASE).less: $(BASE).tsv
+	touch $@
+	cat $(BANNER) | sed 's|^|//|g' >> $@
+	echo '// LESS Variables, see http://lesscss.org/' >> $@
+	for L in `cat $(BASE).tsv | tr '\t' '-'`; do \
+		echo $$L | awk -F- '{ print "@"$$3": "$$4";" }' >> $@ ;\
+	done
+
+$(BASE).html: data
+	cp ./data $@
 
 temp:
 	mkdir -p ./$(TEMPDIR)
@@ -120,4 +148,5 @@ clean:
 	rm -f $(FILES) ./*.ins ./*.tmp ./*.bak ./*~
 
 distclean: clean
-	rm -f $(BASE).tsv data
+	rm -f data
+
