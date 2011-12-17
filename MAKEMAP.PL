@@ -16,7 +16,7 @@ while( <$datahandle> )
 {
 	if( $_ =~ m|\A"(.+)": [{] "name": "([A-Za-z0-9]+)"| )
 	{
-		$data->{$1} = lc $2;
+		$data->{$1} = ucfirst $2;
 	}
 }
 close($datahandle);

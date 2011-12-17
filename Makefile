@@ -7,7 +7,7 @@
 # |_|  |_|\__,_|_|\_\___|_| |_|_|\___| for Traditional JP Colors
 # ---------------------------------------------------------------------------
 #
-VERSION = 1.0.12
+VERSION = 1.0.14
 SOURCE = http://www.colordic.org/w/
 BASE = traditional-jp-colors
 TEMPDIR = temp
