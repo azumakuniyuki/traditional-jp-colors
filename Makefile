@@ -40,7 +40,7 @@ $(BASE).tsv: data
 
 $(BASE)-rgb.txt: $(BASE).tsv
 	touch $@
-	printf "%3d %3d %3d\t\t%s\n" `awk '{ print $$6,$$7,$$8,$$3}' $(BASE).tsv` >> $@
+	printf "%3d %3d %3d\t\t%s\n" `grep -v '^ColorName' $(BASE).tsv | awk '{ print $$6,$$7,$$8,$$3}' ` >> $@
 
 rgb.txt:
 	touch $@
@@ -54,7 +54,7 @@ $(BASE).dtx: $(BASE).tsv
 	touch $@
 	cat include/$(BASE).ins > $(BASE).ins
 	cat include/head.dtx >> $@
-	for L in `cat $(BASE).tsv | tr '\t' '-'`; do \
+	for L in `grep -v '^ColorName' $(BASE).tsv | tr '\t' '-'`; do \
 		echo $$L | awk -F- '{ print "\\definecolor{"$$3"}{rgb}{"$$6","$$7","$$8"}\t%"$$1"("$$2")" }' >> $@ ;\
 	done
 	cat include/foot.dtx >> $@
@@ -65,7 +65,7 @@ $(BASE).yaml: $(BASE).tsv
 	cp /dev/null $(TEMPDIR)/kana.tmp
 	cp /dev/null $(TEMPDIR)/roman.tmp
 	cp /dev/null $(TEMPDIR)/color.tmp
-	for L in `cat $(BASE).tsv | tr '\t' '-'`; do \
+	for L in `grep -v '^ColorName' $(BASE).tsv | tr '\t' '-'`; do \
 		echo $$L | awk -F- '{ print "|name|: |"$$1"|," }' >> $(TEMPDIR)/name.tmp ;\
 		echo $$L | awk -F- '{ print "|kana|: |"$$2"|," }' >> $(TEMPDIR)/kana.tmp ;\
 		echo $$L | awk -F- '{ print "|roman|: |"$$3"|," }' >> $(TEMPDIR)/roman.tmp ;\
@@ -89,7 +89,7 @@ $(BASE).plist: $(BASE).tsv
 	touch $@
 	cat include/Colors-head.plist >> $@
 	touch $(TEMPDIR)/$@.tmp
-	for L in `cat $(BASE).tsv | tr '\t' '-'`; do \
+	for L in `grep -v '^ColorName' $(BASE).tsv | tr '\t' '-'`; do \
 		echo $$L | awk -F- '{ print "\t<key>"$$3"</key>" }' >> $(TEMPDIR)/$@.tmp ;\
 		echo $$L | awk -F- '{ print "\t<integer>"$$5"</integer>" }' >> $(TEMPDIR)/$@.tmp ;\
 	done
@@ -104,7 +104,7 @@ Colors.plist: $(BASE).plist
 	if [ -s "$(TEMPDIR)/$(BASE).plist.tmp" ]; then \
 		cat $(TEMPDIR)/$(BASE).plist.tmp >> $@ ;\
 	else \
-		for L in `cat $(BASE).tsv | tr '\t' '-'`; do \
+		for L in `grep '^ColorName' $(BASE).tsv | tr '\t' '-'`; do \
 			echo $$L | awk -F- '{ print "\t<key>"$$3"</key>" }' >> $@ ;\
 			echo $$L | awk -F- '{ print "\t<integer>"$$5"</integer>" }' >> $@ ;\
 		done ;\
@@ -122,7 +122,7 @@ $(BASE).vim: $(BASE).tsv
 	touch $@
 	cp /dev/null $(TEMPDIR)/let.tmp
 	cp /dev/null $(TEMPDIR)/comment.tmp
-	for L in `cat $(BASE).tsv | tr '\t' '-'`; do \
+	for L in `grep -v '^ColorName' $(BASE).tsv | tr '\t' '-'`; do \
 		echo $$L | awk -F- '{ print "let b:"$$3" = |"$$4"|" }' | tr '|' "'" >> $(TEMPDIR)/let.tmp ;\
 		echo $$L | awk -F- '{ print "|"$$1"("$$2") "$$6","$$7","$$8 }' | tr '|' '"' >> $(TEMPDIR)/comment.tmp ;\
 	done
@@ -133,7 +133,7 @@ $(BASE).less: $(BASE).tsv
 	touch $@
 	cat $(BANNER) | sed 's|^|//|g' >> $@
 	echo '// LESS Variables, see http://lesscss.org/' >> $@
-	for L in `cat $(BASE).tsv | tr '\t' '-'`; do \
+	for L in `grep -v '^ColorName' $(BASE).tsv | tr '\t' '-'`; do \
 		echo $$L | awk -F- '{ print "@"$$3": "$$4";" }' >> $@ ;\
 	done
 
