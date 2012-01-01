@@ -1,0 +1,37 @@
+$Id: README,v 1.2 2010/02/02 11:47:18 ak Exp $
+                                            
+ #####  ######   ##   ####   ##  ## ######  
+ ##  ## ##      ####  ## ##  ###### ##      
+ ##  ## ####   ##  ## ##  ## ###### ####    
+ #####  ##     ###### ##  ## ##  ## ##      
+ ## ##  ##     ##  ## ## ##  ##  ## ##      
+ ##  ## ###### ##  ## ####   ##  ## ######  
+                                            
+--------------------------------------------------------------------------------
+ traditional-jp-colors:
+--------------------------------------------------------------------------------
+ COLOR-NAME-MAP ----------------------------- Color name list in YAML
+ MAKEMAP.PL --------------------------------- Perl script for making tsv file
+ Makefile ----------------------------------- Makefile
+ README ------------------------------------- This file
+ colorname-to-hexcode.pl -------------------- Converter script
+
+--------------------------------------------------------------------------------
+ How to use
+--------------------------------------------------------------------------------
+ The following files are created by ``make''.
+
+ - rgb.txt ---------------------------------- X11/rgb.txt + JP colors
+ - Colors.plist ----------------------------- For MacVim including JP colors
+ - traditional-jp-colors-rgb.txt ------------ JP colors only in rgb.txt format
+ - traditional-jp-colors.dtx ---------------- For LaTeX
+ - traditional-jp-colors.html --------------- same as index.html of ./URL
+ - traditional-jp-colors.ins ---------------- For LaTeX
+ - traditional-jp-colors.json --------------- JP color names in JSON format
+ - traditional-jp-colors.less --------------- JP color variables for CSS
+ - traditional-jp-colors.plist -------------- For MacVim, including only JP colors
+ - traditional-jp-colors.plist.diff --------- diff -u the-original jp-colors
+ - traditional-jp-colors.tsv ---------------- Tab separated jp colors
+ - traditional-jp-colors.vim ---------------- JP color variables for Vim
+ - traditional-jp-colors.yaml --------------- JP color names in YAML format
+
