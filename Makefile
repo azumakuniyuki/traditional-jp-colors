@@ -7,14 +7,14 @@
 # |_|  |_|\__,_|_|\_\___|_| |_|_|\___| for Traditional JP Colors
 # ---------------------------------------------------------------------------
 #
-VERSION = 1.0.14
+VERSION = 1.0.16
 SOURCE = http://www.colordic.org/w/
 BASE = traditional-jp-colors
 TEMPDIR = temp
 BANNER = include/banner
 FILES = $(BASE).tsv $(BASE).yaml $(BASE).dtx $(BASE).vim $(BASE).plist \
 	$(BASE).plist.diff Colors.plist rgb.txt $(BASE)-rgb.txt $(BASE).json \
-	$(BASE).less $(BASE).html
+	$(BASE).less $(BASE).sed $(BASE).html
 
 .PHONY: clean
 all: $(FILES)
@@ -26,6 +26,7 @@ json: $(BASE).json
 macvim: $(BASE).plist Colors.plist $(BASE).plist.diff
 vim: $(BASE).vim
 less: $(BASE).less
+sed: $(BASE).sed
 html: $(BASE).html
 
 data:
@@ -137,8 +138,13 @@ $(BASE).less: $(BASE).tsv
 		echo $$L | awk -F- '{ print "@"$$3": "$$4";" }' >> $@ ;\
 	done
 
+$(BASE).sed: $(BASE).tsv
+	touch $@
+	awk '{ print "s/"$$3"/"$$4"/g"}' $(BASE).tsv >> $@
+
 $(BASE).html: data
 	cp ./data $@
+
 
 temp:
 	mkdir -p ./$(TEMPDIR)

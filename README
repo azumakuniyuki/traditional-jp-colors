@@ -31,6 +31,7 @@ $Id: README,v 1.2 2010/02/02 11:47:18 ak Exp $
  - traditional-jp-colors.less --------------- JP color variables for CSS
  - traditional-jp-colors.plist -------------- For MacVim, including only JP colors
  - traditional-jp-colors.plist.diff --------- diff -u the-original jp-colors
+ - traditional-jp-colors.sed ---------------- sed script for rewriting with ``sed -f''
  - traditional-jp-colors.tsv ---------------- Tab separated jp colors
  - traditional-jp-colors.vim ---------------- JP color variables for Vim
  - traditional-jp-colors.yaml --------------- JP color names in YAML format
